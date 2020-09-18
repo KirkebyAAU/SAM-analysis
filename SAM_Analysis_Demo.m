@@ -1,0 +1,107 @@
+
+clear; clc; close all;
+
+basepath = "data/"; fileext = ".csv";
+x_plot_area = 1:125; y_plot_area = 1:125;
+z = zeros(length(x_plot_area),length(y_plot_area));
+z_depth = z;
+z_depth_thresh = z;
+
+threshold = 20;
+
+for i = x_plot_area
+    x_ext = append("X",num2str(i,"%03.f"));
+    for j = y_plot_area
+        y_ext = append("Y",num2str(j,"%03.f"));
+        filepath = append(basepath,x_ext,y_ext,fileext);
+        data = csvread(filepath);
+        [amp , depth] = max(abs(data));
+        
+        if amp < threshold
+            depth_thresh = 0;
+        else 
+            depth_thresh = depth;
+        end
+        
+        z(i,j) = amp; % Data for amplitude plot
+        z_depth(i,j) = depth; % Data for "depth" plot. Time delay before reflected wave.
+        z_depth_thresh(i,j) = depth_thresh; % depth plot, but with amplitude threshold.
+    end
+end
+
+figure(1);
+s1 = surf(z);
+title('Amplitude of reflected wave');
+
+figure(2);
+s2 = surf(z_depth);
+title('time delay of reflected wave');
+
+figure(3);
+s3 = surf(z_depth_thresh);
+title('time delay of reflected wave with amplitude threshold');
+
+
+%% Offset plot
+offset_depth = 400;
+z_depth_thresh_offset = z_depth_thresh-offset_depth;
+z_depth_thresh_offset(z_depth_thresh_offset < 0) = 0;
+
+figure(4);
+s4 = surf(z_depth_thresh_offset);
+title('Time with threshold - offset');
+
+%% Plotting together
+figure(5)
+ax1 = subplot(2,2,1);
+surf(z);
+ax2 = subplot(2,2,2);
+surf(z_depth);
+ax3 = subplot(2,2,3);
+surf(z_depth_thresh);
+ax4 = subplot(2,2,4);
+surf(z_depth_thresh_offset);
+
+
+%% Abs and movmean
+% window_length = 20;
+% 
+% data_abs = abs(data);
+% data_abs_filt = movmean(data_abs,window_length);
+% 
+% [peaks_amp, peaks_loc] = findpeaks(data_abs_filt);
+% peaks_loc_logic = zeros(length(peaks_loc));
+% peaks_log_logic(peaks_loc) = 1;
+% 
+% 
+% figure(1);
+% plot(data);
+% 
+% figure(2);
+% ax2a = subplot(2,1,1);
+% plot(data_abs);
+% ax2b = subplot(2,1,2);
+% plot(data_abs_filt);
+% 
+% amps = zeros(num_x,num_y);
+% depths = zeros(num_x,num_y);
+
+%% Abs and max
+% 
+% data_abs = abs(data);
+% [M,I] = max(data_abs);
+% 
+% peak = zeros(length(data_abs));
+% peak(I) = M;
+% 
+% figure(1)
+% ax1a = subplot(2,1,1);
+% plot(data_abs);
+% ax1b = subplot(2,1,2);
+% plot(peak);
+
+
+
+
+
+
